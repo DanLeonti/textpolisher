@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TextPolisher — Polish any text, on your Mac. Private.</title>
+<meta name="description" content="A free, open-source menu-bar Mac app that rewrites selected text with Apple Intelligence — fully on-device, with no accounts or API keys." />
+
+<meta property="og:title" content="TextPolisher for macOS" />
+<meta property="og:description" content="Free and open source. Polish any selected text with Apple Intelligence — fully on-device and private." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://textpolisher.app" />
+<meta property="og:image" content="https://textpolisher.app/icon-512.png" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+<link rel="apple-touch-icon" href="icon-180.png" />
+
+<script defer src="lib/consent.js"></script>
+
+<style>
+  :root {
+    --ink: #0a0c16;
+    --muted: #5c6175;
+    --line: rgba(16, 18, 45, 0.10);
+    --line-soft: rgba(16, 18, 45, 0.06);
+    --indigo: #4b1fe6;
+    --teal: #11b3a6;
+    --bg: #ffffff;
+    --bg-alt: #fafafc;
+    --dl: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding-left: 24px; padding-right: 24px; }
+  .grad {
+    background: linear-gradient(120deg, var(--indigo), var(--teal));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  /* Nav */
+  .nav-shell { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.72); backdrop-filter: saturate(180%) blur(14px); border-bottom: 1px solid var(--line-soft); }
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px; max-width: 1080px; margin: 0 auto;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: -0.01em; }
+  .brand img { width: 28px; height: 28px; border-radius: 7px; }
+  .nav-right { display: flex; align-items: center; gap: 22px; font-size: 0.94rem; }
+  .nav-right a { color: var(--muted); transition: color .15s; }
+  .nav-right a:hover { color: var(--ink); }
+  .nav-dl { color: var(--indigo) !important; font-weight: 650; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--ink); color: #fff;
+    font-weight: 650; font-size: 1rem;
+    padding: 14px 24px; border-radius: 12px;
+    transition: transform .15s ease, opacity .15s ease;
+  }
+  .btn:hover { transform: translateY(-1px); opacity: 0.9; }
+  .btn svg { width: 18px; height: 18px; }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--ink); font-weight: 600; font-size: 1rem;
+    padding: 14px 18px; border-radius: 12px; border: 1px solid var(--line);
+    transition: background .15s;
+  }
+  .btn-ghost:hover { background: var(--bg-alt); }
+
+  /* Hero */
+  .hero { padding: 40px 0 88px; }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.8rem; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--indigo); margin-bottom: 20px;
+  }
+  .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }
+  .hero h1 {
+    font-size: clamp(2.3rem, 4.6vw, 3.4rem); font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1.05;
+  }
+  .hero p.lede { font-size: clamp(1.05rem, 1.6vw, 1.2rem); color: var(--muted); margin-top: 20px; max-width: 30ch; }
+  .hero-actions { display: flex; align-items: center; gap: 12px; margin-top: 32px; flex-wrap: wrap; }
+  .hero-meta { margin-top: 18px; font-size: 0.85rem; color: var(--muted); }
+
+  /* Hero demo wrapper (chat + hotkey overlay live inside) */
+  .demo { position: relative; }
+
+  /* Section scaffolding */
+  section { padding-top: 96px; padding-bottom: 0; }
+  .sec-head { max-width: 640px; }
+  .sec-head .eyebrow { margin-bottom: 14px; }
+  .sec-head h2 { font-size: clamp(1.7rem, 3vw, 2.3rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.1; }
+  .sec-head p { color: var(--muted); margin-top: 12px; font-size: 1.05rem; }
+
+  /* Features — typographic rows, no cards */
+  .features { margin-top: 44px; border-top: 1px solid var(--line); }
+  .feature { display: grid; grid-template-columns: 44px 220px 1fr; gap: 24px; align-items: start; padding: 28px 4px; border-bottom: 1px solid var(--line); }
+  .feature .ic { width: 40px; height: 40px; border-radius: 11px; border: 1px solid var(--line); display: grid; place-items: center; color: var(--indigo); }
+  .feature .ic svg { width: 20px; height: 20px; }
+  .feature h3 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; }
+  .feature p { color: var(--muted); font-size: 0.98rem; }
+
+  /* Shortcuts */
+  .shortcuts { margin-top: 40px; display: grid; gap: 12px; }
+  .shortcut { display: flex; align-items: center; gap: 20px; padding: 18px 22px; border: 1px solid var(--line); border-radius: 14px; flex-wrap: wrap; }
+  .keys { display: inline-flex; gap: 5px; flex-shrink: 0; min-width: 132px; }
+  kbd {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: #fff; border: 1px solid var(--line); border-bottom-width: 2px;
+    border-radius: 7px; padding: 5px 9px; font-size: 0.9rem; font-weight: 600; color: var(--ink);
+  }
+  .shortcut .desc { color: var(--muted); }
+  .shortcut .desc strong { color: var(--ink); font-weight: 650; }
+  .shortcuts-note { margin-top: 16px; color: var(--muted); font-size: 0.95rem; }
+  .shortcuts-note strong { color: var(--ink); font-weight: 650; }
+
+  /* Privacy band */
+  .privacy {
+    position: relative; overflow: hidden;
+    margin-top: 96px; color: #fff; border-radius: 24px; padding: 64px 48px; text-align: center;
+    background: linear-gradient(150deg, #5a2bff 0%, var(--indigo) 42%, var(--teal) 100%);
+    box-shadow: 0 40px 90px -55px rgba(75,31,230,0.6);
+  }
+  .privacy::before {
+    content: ""; position: absolute; top: -32%; left: -8%; width: 320px; height: 320px;
+    border-radius: 50%; background: rgba(255,255,255,0.14); pointer-events: none;
+  }
+  .privacy::after {
+    content: ""; position: absolute; bottom: -42%; right: -6%; width: 300px; height: 300px;
+    border-radius: 50%; background: rgba(255,255,255,0.10); pointer-events: none;
+  }
+  .privacy > * { position: relative; z-index: 1; }
+  .privacy h2 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 800; letter-spacing: -0.03em; }
+  .privacy h2 .grad { color: #fff; background: none; -webkit-background-clip: initial; background-clip: initial; }
+  .privacy p { color: rgba(255,255,255,0.9); max-width: 56ch; margin: 18px auto 0; font-size: 1.05rem; }
+
+  /* Steps */
+  .steps { margin-top: 44px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+  .step .num { font-size: 0.8rem; font-weight: 700; color: var(--indigo); letter-spacing: 0.05em; }
+  .step h4 { font-size: 1.02rem; font-weight: 700; margin: 10px 0 6px; padding-top: 14px; border-top: 2px solid var(--ink); }
+  .step p { color: var(--muted); font-size: 0.92rem; }
+  .note { margin-top: 28px; color: var(--muted); font-size: 0.92rem; }
+  .note a { color: var(--indigo); font-weight: 600; }
+
+  /* Pricing card */
+  .pricing-card {
+    margin-top: 44px; display: grid; grid-template-columns: 320px 1fr;
+    gap: 0; border: 1px solid var(--line); border-radius: 22px; overflow: hidden;
+    box-shadow: 0 34px 80px -50px rgba(75,31,230,0.55);
+  }
+  .pc-left {
+    position: relative; overflow: hidden;
+    padding: 44px 38px; color: #fff;
+    background: linear-gradient(150deg, #5a2bff 0%, var(--indigo) 42%, var(--teal) 100%);
+    display: flex; flex-direction: column;
+  }
+  /* soft decorative glow */
+  .pc-left::before {
+    content: ""; position: absolute; top: -38%; right: -28%;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: rgba(255,255,255,0.16); pointer-events: none;
+  }
+  .pc-left > * { position: relative; z-index: 1; }
+  .pc-badge {
+    align-self: flex-start;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: #fff; background: rgba(255,255,255,0.18);
+    padding: 6px 12px; border-radius: 999px; margin-bottom: 22px;
+  }
+  .pc-price { display: flex; align-items: baseline; gap: 5px; }
+  .pc-amount { font-size: 4.2rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+  .pc-period { font-size: 1.1rem; color: rgba(255,255,255,0.8); font-weight: 500; }
+  .pc-tagline { color: rgba(255,255,255,0.9); font-size: 0.98rem; margin-top: 14px; }
+  .pc-left .btn {
+    background: #fff; color: var(--indigo); margin-top: 28px;
+    box-shadow: 0 18px 34px -20px rgba(0,0,0,0.55);
+  }
+  .pc-left .btn:hover { background: #fff; opacity: 1; }
+  .pc-reassure { margin-top: 16px; font-size: 0.85rem; color: rgba(255,255,255,0.85); }
+  .pc-reassure a { color: #fff; text-decoration: underline; font-weight: 600; }
+  .pc-features {
+    padding: 36px 40px; list-style: none;
+    display: flex; flex-direction: column; gap: 16px;
+    background: #fff;
+  }
+  .pc-features li {
+    display: flex; align-items: center; gap: 13px;
+    font-size: 0.98rem; color: var(--ink);
+  }
+  .pc-features li svg {
+    width: 22px; height: 22px; flex-shrink: 0; padding: 5px;
+    border-radius: 50%; background: linear-gradient(135deg, var(--indigo), var(--teal));
+    color: #fff; stroke-width: 3;
+  }
+  @media (max-width: 680px) {
+    .pricing-card { grid-template-columns: 1fr; box-shadow: 0 24px 50px -40px rgba(75,31,230,0.5); }
+    .pc-left { padding: 36px 30px; }
+    .pc-features { padding: 30px; }
+  }
+
+  /* Footer */
+  footer { margin-top: 96px; padding: 40px 0 64px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; color: var(--muted); font-size: 0.9rem; }
+  footer .brand { color: var(--ink); }
+  footer .f-links { display: flex; gap: 22px; }
+  footer .f-links a:hover { color: var(--ink); }
+
+  @media (max-width: 860px) {
+    section { padding-top: 72px; }
+    .hero { padding: 28px 0 64px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    .hero p.lede { max-width: none; }
+    .feature { grid-template-columns: 40px 1fr; column-gap: 18px; row-gap: 4px; padding: 24px 2px; }
+    .feature .ic { grid-row: 1 / span 2; align-self: start; }
+    .feature h3 { grid-column: 2; }
+    .feature p { grid-column: 2; }
+    .steps { grid-template-columns: 1fr 1fr; gap: 24px; }
+    .privacy { padding: 48px 24px; border-radius: 20px; margin-top: 72px; }
+    footer { margin-top: 72px; }
+  }
+  @media (max-width: 560px) {
+    .wrap { padding-left: 18px; padding-right: 18px; }
+    nav { padding: 12px 18px; }
+    section { padding-top: 60px; }
+    .hero-actions { flex-direction: column; align-items: stretch; }
+    .hero-actions .btn, .hero-actions .btn-ghost { justify-content: center; width: 100%; }
+    .steps { grid-template-columns: 1fr; gap: 0; }
+    .step { padding: 22px 0; border-top: 1px solid var(--line); }
+    .step:first-child { border-top: none; }
+    .step h4 { border-top: none; padding-top: 0; }
+    .shortcut { gap: 6px 16px; padding: 16px 18px; }
+    .win-body { padding: 14px; }
+    .text-block { font-size: 0.9rem; }
+    .privacy { padding: 40px 20px; }
+    footer { flex-direction: column; align-items: flex-start; gap: 18px; }
+  }
+  /* Instant-polish chat demo */
+  #demo .sec-head { margin-bottom: 0; }
+  .ip-demo { position: relative; margin: 36px auto 0; max-width: 720px; }
+  .chat { border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: #fff; box-shadow: 0 24px 60px -34px rgba(16,18,45,0.30); }
+  .chat-head { display: flex; align-items: baseline; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line-soft); background: var(--bg-alt); }
+  .ch-name { font-weight: 700; letter-spacing: -0.01em; }
+  .ch-sub { color: var(--muted); font-size: 0.82rem; }
+  .chat-body { padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+  .msg { display: flex; gap: 10px; }
+  .avatar { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--indigo), var(--teal)); color: #fff; font-weight: 700; font-size: 0.8rem; display: grid; place-items: center; flex-shrink: 0; }
+  .bubble .who { font-weight: 700; font-size: 0.85rem; }
+  .bubble p { color: var(--ink); font-size: 0.95rem; }
+  .composer { border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; background: #fff; transition: border-color .3s, box-shadow .3s; }
+  .composer.done { border-color: rgba(75,31,230,0.5); box-shadow: 0 0 0 4px rgba(75,31,230,0.10); }
+  .composer-text { font-size: 1rem; line-height: 1.55; min-height: 3.1em; border-radius: 6px; transition: opacity .25s, background .25s, box-shadow .25s; padding: 2px 4px; }
+  .composer-text.selecting { background: rgba(75,31,230,0.14); box-shadow: inset 0 0 0 1px rgba(75,31,230,0.18); }
+  .composer-bar { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .cb-hint { font-size: 0.82rem; color: var(--muted); font-weight: 600; transition: color .3s; }
+  .composer.done .cb-hint { color: var(--indigo); }
+  .send { font-size: 0.85rem; font-weight: 650; color: #fff; background: var(--ink); padding: 6px 14px; border-radius: 8px; opacity: 0.9; }
+  .ip-hotkey { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 9px; background: rgba(255,255,255,0.94); backdrop-filter: saturate(160%) blur(6px); border: 1px solid var(--line); border-radius: 16px; padding: 18px 24px; box-shadow: 0 28px 60px -26px rgba(16,18,45,0.55); z-index: 3; transition: opacity .35s ease, transform .35s ease; }
+  .ip-hotkey.hidden { opacity: 0; transform: translate(-50%, -50%) scale(0.94); pointer-events: none; }
+  .ip-hk-row { display: flex; align-items: center; gap: 14px; }
+  .ip-hk-label { font-weight: 700; font-size: 1.12rem; letter-spacing: -0.01em; }
+  .ip-keys { display: inline-flex; gap: 7px; padding: 11px 13px; background: #fff; border: 1px solid var(--line); border-radius: 13px; box-shadow: 0 16px 34px -18px rgba(16,18,45,0.45); transition: transform .12s ease, box-shadow .12s ease; }
+  .ip-keys kbd { font-family: ui-monospace, "SF Mono", Menlo, monospace; background: var(--bg-alt); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 8px; padding: 8px 13px; font-size: 1.1rem; font-weight: 700; color: var(--ink); transition: background .15s ease, color .15s ease, border-color .15s ease, transform .12s ease; }
+  .ip-keys kbd.active { background: linear-gradient(135deg, var(--indigo), var(--teal)); color: #fff; border-color: transparent; transform: translateY(2px); }
+  .ip-keys.pressed { transform: translateY(2px) scale(0.985); box-shadow: 0 6px 18px -8px rgba(75,31,230,0.75); }
+  .ip-hk-note { font-size: 0.86rem; color: var(--muted); }
+  /* Preview overlay window (hero) */
+  .ip-preview { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(380px, 90%); background: #fff; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 30px 64px -24px rgba(16,18,45,0.58); z-index: 4; overflow: hidden; transition: opacity .35s ease, transform .35s ease; }
+  .ip-preview.hidden { opacity: 0; transform: translate(-50%, -50%) scale(0.94); pointer-events: none; }
+  .pv-head { display: flex; align-items: center; justify-content: space-between; padding: 11px 15px; border-bottom: 1px solid var(--line-soft); background: var(--bg-alt); }
+  .pv-title { font-weight: 700; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 7px; color: var(--ink); }
+  .pv-title svg { color: var(--indigo); }
+  .pv-keys kbd, .pv-replace kbd { font-family: ui-monospace, "SF Mono", Menlo, monospace; background: #fff; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; padding: 2px 7px; font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+  .pv-tones { display: flex; flex-wrap: wrap; gap: 6px; padding: 13px 15px 0; }
+  .pv-tone { font-size: 0.76rem; font-weight: 600; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); transition: background .2s ease, color .2s ease, border-color .2s ease; }
+  .pv-tone.active { background: linear-gradient(135deg, var(--indigo), var(--teal)); color: #fff; border-color: transparent; }
+  .pv-body { padding: 12px 15px; font-size: 0.95rem; line-height: 1.5; color: var(--ink); min-height: 4.2em; transition: opacity .25s ease; }
+  .pv-foot { display: flex; align-items: center; justify-content: space-between; padding: 0 15px 14px; }
+  .pv-hint { font-size: 0.78rem; color: var(--muted); }
+  .pv-replace { font-size: 0.82rem; font-weight: 650; color: #fff; background: var(--indigo); padding: 6px 12px; border-radius: 9px; display: inline-flex; align-items: center; gap: 7px; transition: transform .12s ease, box-shadow .12s ease; }
+  .pv-replace kbd { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.35); color: #fff; }
+  .pv-replace.flash { transform: translateY(1px) scale(0.97); box-shadow: 0 6px 18px -8px rgba(75,31,230,0.85); }
+  @media (max-width: 720px) {
+    .ip-keys kbd { padding: 7px 10px; font-size: 1rem; }
+    .ip-hk-label { font-size: 1.02rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .composer, .composer-text, .ip-keys, .ip-hotkey, .ip-preview, .pv-tone, .pv-body, .cb-hint { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="nav-shell">
+    <nav>
+      <a class="brand" href="/"><img src="icon-180.png" alt="" /> TextPolisher</a>
+      <div class="nav-right">
+        <a href="#open-source">Open source</a>
+        <a href="https://github.com/DanLeonti/textpolisher">GitHub</a>
+        <a class="nav-dl" href="/download">Download</a>
+      </div>
+    </nav>
+  </div>
+
+  <header class="hero wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow" style="text-transform:none;"><span class="dot"></span> On-device · MacOS</span>
+        <h1>Polish any text <span class="grad">right where you wrote it.</span></h1>
+        <p class="lede">Select text in any app, hit a shortcut, and TextPolisher rewrites it with Apple Intelligence — entirely on your Mac.</p>
+        <div class="hero-actions">
+          <a class="btn" href="/download">
+            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 12.5 3.5 8l1.4-1.4L7 8.67V1h2v7.67l2.1-2.07L12.5 8 8 12.5ZM3 14h10v2H3v-2Z"/></svg>
+            Download for Mac
+          </a>
+          <a class="btn-ghost" href="https://github.com/DanLeonti/textpolisher">View source on GitHub</a>
+        </div>
+        <p class="hero-meta">Free forever · Open source · macOS 26 (Tahoe)+ · Apple Silicon</p>
+      </div>
+
+      <div class="demo">
+        <div class="chat" aria-hidden="true">
+          <div class="chat-head">
+            <span class="ch-name"># design-review</span>
+            <span class="ch-sub">2 members</span>
+          </div>
+          <div class="chat-body">
+            <div class="msg msg-in">
+              <span class="avatar">J</span>
+              <div class="bubble">
+                <span class="who">Jonas</span>
+                <p>can you send your feedback on the mockups?</p>
+              </div>
+            </div>
+            <div class="composer" id="heroComposer">
+              <div class="composer-text" id="heroText"></div>
+              <div class="composer-bar">
+                <span class="cb-hint" id="heroHint">Your draft</span>
+                <span class="send">Send</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ip-hotkey hidden" id="heroHotkey">
+          <div class="ip-hk-row">
+            <span class="ip-hk-label">Hotkey:</span>
+            <span class="ip-keys" id="heroKeys" aria-hidden="true"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>P</kbd></span>
+          </div>
+          <span class="ip-hk-note">Fully customizable</span>
+        </div>
+        <div class="ip-preview hidden" id="heroPreview" aria-hidden="true">
+          <div class="pv-head">
+            <span class="pv-title"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 16-1.5 4.5L8 19m-3-3 9.5-9.5a2.1 2.1 0 0 1 3 3L7 19m-2-3 3 3"/></svg> Polish</span>
+            <span class="pv-keys"><kbd>↵</kbd></span>
+          </div>
+          <div class="pv-tones" id="heroTones">
+            <span class="pv-tone">Fix Grammar</span>
+            <span class="pv-tone active">Professional</span>
+            <span class="pv-tone">Friendly</span>
+            <span class="pv-tone">Concise</span>
+          </div>
+          <div class="pv-body" id="heroPreviewText"></div>
+          <div class="pv-foot">
+            <span class="pv-hint">Switch tone, then replace</span>
+            <span class="pv-replace" id="heroReplace">Replace <kbd>↵</kbd></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="wrap" id="demo">
+      <div class="sec-head">
+        <span class="eyebrow"><span class="dot"></span> Instant polish</span>
+        <h2>One keystroke. <span class="grad">No clicks.</span></h2>
+        <p>Type like you text. Select it, press your instant-polish shortcut, and it's rewritten in place — right inside the app you're already in.</p>
+      </div>
+      <div class="ip-demo">
+        <div class="chat" aria-hidden="true">
+          <div class="chat-head">
+            <span class="ch-name"># product-team</span>
+            <span class="ch-sub">3 members</span>
+          </div>
+          <div class="chat-body">
+            <div class="msg msg-in">
+              <span class="avatar">M</span>
+              <div class="bubble">
+                <span class="who">Maya</span>
+                <p>did we ever lock in the launch date?</p>
+              </div>
+            </div>
+            <div class="composer" id="ipComposer">
+              <div class="composer-text" id="ipText"></div>
+              <div class="composer-bar">
+                <span class="cb-hint" id="ipHint">Your draft</span>
+                <span class="send">Send</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ip-hotkey hidden" id="ipHotkey">
+          <div class="ip-hk-row">
+            <span class="ip-hk-label">Hotkey:</span>
+            <span class="ip-keys" id="ipKeys" aria-hidden="true"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>⇧</kbd><kbd>P</kbd></span>
+          </div>
+          <span class="ip-hk-note">Fully customizable — set your own anytime</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap" id="features">
+      <div class="sec-head">
+        <span class="eyebrow"><span class="dot"></span> Why it's different</span>
+        <h2>Private by design. Fast by default.</h2>
+        <p>No API keys, no cloud round-trips, no data collection. Just better writing, instantly.</p>
+      </div>
+      <div class="features">
+        <div class="feature">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <h3>Runs entirely on your Mac</h3>
+          <p>Zero internet. Your text never leaves the machine — nothing is sent to any server, ever. True on-device privacy.</p>
+        </div>
+        <div class="feature">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/></svg></div>
+          <h3>Powered by Apple Intelligence</h3>
+          <p>Uses Apple's on-device foundation model on your Mac's own silicon. No API keys and no per-word AI fees — ever.</p>
+        </div>
+        <div class="feature">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></div>
+          <h3>Four tones, one keystroke</h3>
+          <p>Fix Grammar, Professional, Friendly, or Concise. Preview and tweak, or replace instantly without lifting your hands.</p>
+        </div>
+        <div class="feature">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.7 5.1A11 11 0 0 1 21 12M6.3 6.3A11 11 0 0 0 3 12M8.5 8.5A7 7 0 0 1 17 12M5.5 11A7 7 0 0 1 7 9.5M12 19h.01"/></svg></div>
+          <h3>Works in every app</h3>
+          <p>Slack, Mail, Notes, your browser — anywhere you can select text. Lives quietly in the menu bar, no Dock clutter.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap" id="shortcuts">
+      <div class="sec-head">
+        <span class="eyebrow"><span class="dot"></span> How to use it</span>
+        <h2>Select text. Press a key. Done.</h2>
+      </div>
+      <div class="shortcuts">
+        <div class="shortcut">
+          <span class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>⇧</kbd><kbd>P</kbd></span>
+          <span class="desc"><strong>Polish &amp; replace instantly</strong> — no preview, no clicks. Uses your default tone.</span>
+        </div>
+        <div class="shortcut">
+          <span class="keys"><kbd>⌥</kbd><kbd>⌘</kbd><kbd>P</kbd></span>
+          <span class="desc"><strong>Polish with preview</strong> — see the rewrite, switch tone, then press <kbd>↵</kbd> to replace.</span>
+        </div>
+        <div class="shortcut">
+          <span class="keys" style="min-width:132px;font-size:0.9rem;color:var(--muted);font-weight:600;">Right-click</span>
+          <span class="desc"><strong>Services → Polish Text</strong> — when you'd rather use the menu.</span>
+        </div>
+      </div>
+      <p class="shortcuts-note">Prefer different keys? Both shortcuts are <strong>fully customizable</strong> — set your own from the menu bar under <strong>Shortcuts…</strong></p>
+    </section>
+
+    <section class="wrap">
+      <div class="privacy">
+        <h2>Any app. <span class="grad">Zero internet.</span></h2>
+        <p>TextPolisher works anywhere you can select text — Slack, Mail, Notes, your browser, your IDE — and runs entirely on-device. No network, no API calls, no telemetry. <strong style="color:#fff;">0 bytes ever leave your Mac</strong>, so it works on a plane, offline, or anywhere you don't trust the network.</p>
+      </div>
+    </section>
+
+    <section class="wrap" id="open-source">
+      <div class="sec-head">
+        <span class="eyebrow"><span class="dot"></span> Open source</span>
+        <h2>Free forever. <span class="grad">Built in the open.</span></h2>
+        <p>No accounts, license keys, payments, tiers, or feature gates.</p>
+      </div>
+      <div class="pricing-card">
+        <div class="pc-left">
+          <span class="pc-badge">MIT licensed</span>
+          <div class="pc-price"><span class="pc-amount">$0</span><span class="pc-period">/forever</span></div>
+          <p class="pc-tagline">Every feature is available to everyone.</p>
+          <a class="btn" href="/download">
+            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 12.5 3.5 8l1.4-1.4L7 8.67V1h2v7.67l2.1-2.07L12.5 8 8 12.5ZM3 14h10v2H3v-2Z"/></svg>
+            Download for Mac
+          </a>
+          <p class="pc-reassure"><a href="https://github.com/DanLeonti/textpolisher">Read, build, fork, or contribute on GitHub →</a></p>
+        </div>
+        <ul class="pc-features">
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5 6.5 11.5 2.5 7.5"/></svg>All four tones — Fix Grammar, Professional, Friendly, Concise</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5 6.5 11.5 2.5 7.5"/></svg>Instant replace &amp; preview overlay</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5 6.5 11.5 2.5 7.5"/></svg>Customizable keyboard shortcuts</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5 6.5 11.5 2.5 7.5"/></svg>Works in every app — Slack, Mail, browser, IDE</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5 6.5 11.5 2.5 7.5"/></svg>100% on-device — 0 bytes ever leave your Mac</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5 6.5 11.5 2.5 7.5"/></svg>No usage limits, no API costs</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5 6.5 11.5 2.5 7.5"/></svg>Free updates</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="wrap" id="install">
+      <div class="sec-head">
+        <span class="eyebrow"><span class="dot"></span> Install</span>
+        <h2>Up and running in a minute.</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <span class="num">STEP 1</span>
+          <h4>Enable Apple Intelligence</h4>
+          <p>System Settings → Apple Intelligence &amp; Siri → turn it on.</p>
+        </div>
+        <div class="step">
+          <span class="num">STEP 2</span>
+          <h4>Drag to Applications</h4>
+          <p>Open the .dmg and drop TextPolisher into your Applications folder.</p>
+        </div>
+        <div class="step">
+          <span class="num">STEP 3</span>
+          <h4>Open it</h4>
+          <p>Launch it — look for the wand in the menu bar. No Dock icon, no window.</p>
+        </div>
+        <div class="step">
+          <span class="num">STEP 4</span>
+          <h4>Grant Accessibility</h4>
+          <p>Allow it in Privacy &amp; Security → Accessibility so it can read and replace your selection.</p>
+        </div>
+      </div>
+      <p class="note">No Apple Intelligence on your Mac? It falls back to a local <a href="https://ollama.com">Ollama</a> model — still fully on-device.</p>
+    </section>
+
+    <footer class="wrap">
+      <a class="brand" href="/"><img src="icon-180.png" alt="" style="width:24px;height:24px;border-radius:6px;" /> TextPolisher</a>
+      <div class="f-links">
+        <a href="/download">Download</a>
+        <a href="https://github.com/DanLeonti/textpolisher">Source</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      function setup(opts) {
+        var text = document.getElementById(opts.text);
+        var hint = document.getElementById(opts.hint);
+        var keys = document.getElementById(opts.keys);
+        var composer = document.getElementById(opts.composer);
+        var hotkey = document.getElementById(opts.hotkey);
+        if (!text || !hint || !keys || !composer) return;
+        var caps = keys.querySelectorAll("kbd");
+        var draft = opts.draft, polished = opts.polished;
+
+        if (reduce) {
+          text.textContent = polished;
+          hint.textContent = "Polished ✓";
+          composer.classList.add("done");
+          return;
+        }
+
+        var timers = [];
+        function at(ms, fn) { timers.push(setTimeout(fn, ms + (opts.offset || 0))); }
+
+        function run() {
+          timers.forEach(clearTimeout);
+          timers = [];
+          text.textContent = draft;
+          text.style.opacity = "1";
+          text.classList.remove("selecting");
+          keys.classList.remove("pressed");
+          for (var k = 0; k < caps.length; k++) caps[k].classList.remove("active");
+          if (hotkey) hotkey.classList.add("hidden");
+          composer.classList.remove("done");
+          hint.textContent = "Your draft";
+
+          at(1500, function () { text.classList.add("selecting"); hint.textContent = "Selected"; });
+          at(2400, function () { if (hotkey) hotkey.classList.remove("hidden"); });
+          at(2900, function () { if (caps[0]) caps[0].classList.add("active"); });
+          at(3120, function () { if (caps[1]) caps[1].classList.add("active"); });
+          at(3340, function () { if (caps[2]) caps[2].classList.add("active"); });
+          at(3560, function () {
+            if (caps[3]) caps[3].classList.add("active");
+            keys.classList.add("pressed");
+            hint.textContent = "Polishing…";
+          });
+          at(3860, function () { keys.classList.remove("pressed"); });
+          at(3960, function () { if (hotkey) hotkey.classList.add("hidden"); });
+          at(4550, function () { text.style.opacity = "0"; });
+          at(4810, function () {
+            text.textContent = polished;
+            text.classList.remove("selecting");
+            text.style.opacity = "1";
+            composer.classList.add("done");
+            hint.textContent = "Polished ✓";
+          });
+          at(8400, run);
+        }
+        run();
+      }
+
+      // Hero: "Polish with preview" flow — hotkey opens an overlay where you can
+      // switch tone, then replace.
+      function setupPreview(opts) {
+        var text = document.getElementById("heroText");
+        var hint = document.getElementById("heroHint");
+        var keys = document.getElementById("heroKeys");
+        var composer = document.getElementById("heroComposer");
+        var hotkey = document.getElementById("heroHotkey");
+        var preview = document.getElementById("heroPreview");
+        var pvText = document.getElementById("heroPreviewText");
+        var toneEls = document.getElementById("heroTones").querySelectorAll(".pv-tone");
+        var replace = document.getElementById("heroReplace");
+        if (!text || !preview || !pvText) return;
+        var caps = keys.querySelectorAll("kbd");
+        var variants = opts.variants;
+
+        function showVariant(i, animate) {
+          function apply() {
+            pvText.textContent = variants[i].text;
+            pvText.style.opacity = "1";
+            for (var t = 0; t < toneEls.length; t++) toneEls[t].classList.toggle("active", t === variants[i].tone);
+          }
+          if (animate) { pvText.style.opacity = "0"; setTimeout(apply, 170); } else { apply(); }
+        }
+
+        if (reduce) {
+          text.textContent = opts.draft;
+          preview.classList.remove("hidden");
+          showVariant(0, false);
+          return;
+        }
+
+        var timers = [];
+        function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
+
+        function run() {
+          timers.forEach(clearTimeout);
+          timers = [];
+          text.textContent = opts.draft;
+          text.classList.remove("selecting");
+          keys.classList.remove("pressed");
+          for (var k = 0; k < caps.length; k++) caps[k].classList.remove("active");
+          hotkey.classList.add("hidden");
+          preview.classList.add("hidden");
+          replace.classList.remove("flash");
+          composer.classList.remove("done");
+          hint.textContent = "Your draft";
+
+          at(1500, function () { text.classList.add("selecting"); hint.textContent = "Selected"; });
+          at(2400, function () { hotkey.classList.remove("hidden"); });
+          at(2900, function () { if (caps[0]) caps[0].classList.add("active"); });
+          at(3120, function () { if (caps[1]) caps[1].classList.add("active"); });
+          at(3340, function () {
+            if (caps[2]) caps[2].classList.add("active");
+            keys.classList.add("pressed");
+            hint.textContent = "Polishing…";
+          });
+          at(3640, function () { keys.classList.remove("pressed"); });
+          at(3760, function () { hotkey.classList.add("hidden"); });
+          at(4150, function () { showVariant(0, false); preview.classList.remove("hidden"); });
+          at(5700, function () { showVariant(1, true); });
+          at(7100, function () { showVariant(2, true); });
+          at(8500, function () { replace.classList.add("flash"); });
+          at(8800, function () {
+            replace.classList.remove("flash");
+            preview.classList.add("hidden");
+            text.textContent = variants[2].text;
+            text.classList.remove("selecting");
+            composer.classList.add("done");
+            hint.textContent = "Replaced ✓";
+          });
+          at(11400, run);
+        }
+        run();
+      }
+
+      setupPreview({
+        draft: "ya i'll send my feedback on the mockups l8r tmrw prob, gotta wrap up smth first",
+        variants: [
+          { tone: 1, text: "Yes — I'll send my feedback on the mockups, probably tomorrow. I need to wrap up something first." },
+          { tone: 2, text: "Sure! I'll get you my feedback on the mockups — probably tomorrow, once I wrap up something first." },
+          { tone: 3, text: "I'll send mockup feedback tomorrow, after I finish something." }
+        ]
+      });
+
+      setup({
+        text: "ipText", hint: "ipHint", keys: "ipKeys", composer: "ipComposer", hotkey: "ipHotkey",
+        offset: 1200,
+        draft: "hey did we lock the launch date? i think tues works but idk if mktg is ready. can u confirm so i can tell the client tmrw? thx",
+        polished: "Hey — did we settle on the launch date? Tuesday works for me, but I'm not sure marketing is ready. Could you confirm, so I can update the client tomorrow? Thanks!"
+      });
+    })();
+  </script>
+
+</body>
+</html>

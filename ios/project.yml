@@ -1,0 +1,65 @@
+name: TextPolisher-iOS
+options:
+  bundleIdPrefix: com.textpolisher
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    GENERATE_INFOPLIST_FILE: NO
+
+targets:
+  TextPolisher:
+    type: application
+    platform: iOS
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: Polish
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.textpolisher.ios
+        INFOPLIST_FILE: Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_USER_SCRIPT_SANDBOXING: YES
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_EMIT_LOC_STRINGS: YES
+    dependencies:
+      - target: PolishAction
+    sources:
+      - path: Sources
+      - path: ../Sources/text_polisher/Engine/Tone.swift
+      - path: ../Sources/text_polisher/Engine/PromptBuilder.swift
+      - path: ../Sources/text_polisher/Engine/OutputCleaner.swift
+      - path: ../Sources/text_polisher/Engine/PolishEngine.swift
+      - path: ../Sources/text_polisher/Engine/FoundationModelsEngine.swift
+
+  PolishAction:
+    type: app-extension
+    platform: iOS
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.textpolisher.ios.PolishAction
+        INFOPLIST_FILE: PolishAction/Info.plist
+        ENABLE_USER_SCRIPT_SANDBOXING: YES
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_EMIT_LOC_STRINGS: YES
+    sources:
+      - path: PolishAction
+      - path: Sources/ToneStore.swift
+      - path: Sources/PolishRunner.swift
+      - path: ../Sources/text_polisher/Engine/Tone.swift
+      - path: ../Sources/text_polisher/Engine/PromptBuilder.swift
+      - path: ../Sources/text_polisher/Engine/OutputCleaner.swift
+      - path: ../Sources/text_polisher/Engine/PolishEngine.swift
+      - path: ../Sources/text_polisher/Engine/FoundationModelsEngine.swift

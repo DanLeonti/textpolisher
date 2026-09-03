@@ -1,0 +1,13 @@
+.build/
+ios/.build_dd/
+dist/
+.DS_Store
+*.xcodeproj
+.swiftpm/
+.wrangler/
+node_modules/
+.cursor/
+.env
+.env.*
+AgentLights/
+leonti.solutions/

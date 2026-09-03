@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Privacy Policy — TextPolisher</title>
+<meta name="description" content="TextPolisher privacy policy. Your text never leaves your Mac." />
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+<link rel="apple-touch-icon" href="icon-180.png" />
+<script defer src="lib/consent.js"></script>
+<style>
+  :root {
+    --ink: #0a0c16;
+    --muted: #5c6175;
+    --line: rgba(16, 18, 45, 0.10);
+    --line-soft: rgba(16, 18, 45, 0.06);
+    --indigo: #4b1fe6;
+    --teal: #11b3a6;
+    --bg: #ffffff;
+    --bg-alt: #fafafc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink); background: var(--bg); line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--indigo); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+  .nav-shell { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.72); backdrop-filter: saturate(180%) blur(14px); border-bottom: 1px solid var(--line-soft); }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; max-width: 1080px; margin: 0 auto; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: -0.01em; color: var(--ink); text-decoration: none; }
+  .brand img { width: 28px; height: 28px; border-radius: 7px; }
+  .nav-back { font-size: 0.94rem; color: var(--muted); }
+  .nav-back:hover { color: var(--ink); text-decoration: none; }
+
+  .page-head { padding: 64px 0 48px; border-bottom: 1px solid var(--line); margin-bottom: 48px; }
+  .page-head .eyebrow { font-size: 0.8rem; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; color: var(--indigo); margin-bottom: 14px; display: block; }
+  .page-head h1 { font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+  .page-head .updated { margin-top: 14px; color: var(--muted); font-size: 0.9rem; }
+
+  .prose h2 { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 0 10px; }
+  .prose p { color: var(--muted); margin-bottom: 14px; font-size: 1rem; }
+  .prose ul { color: var(--muted); padding-left: 22px; margin-bottom: 14px; }
+  .prose ul li { margin-bottom: 6px; font-size: 1rem; }
+  .prose strong { color: var(--ink); font-weight: 650; }
+  .prose a { color: var(--indigo); }
+
+  .highlight-box { background: var(--bg-alt); border: 1px solid var(--line); border-radius: 14px; padding: 24px 28px; margin: 32px 0; }
+  .highlight-box p { color: var(--ink); font-size: 1.05rem; font-weight: 500; margin: 0; }
+
+  footer { margin-top: 80px; padding: 32px 0 56px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; color: var(--muted); font-size: 0.9rem; }
+  footer .brand { color: var(--ink); }
+  footer .f-links { display: flex; gap: 22px; }
+  footer .f-links a { color: var(--muted); }
+  footer .f-links a:hover { color: var(--ink); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="nav-shell">
+  <nav>
+    <a class="brand" href="/"><img src="icon-180.png" alt="" /> TextPolisher</a>
+    <a class="nav-back" href="/">← Back to home</a>
+  </nav>
+</div>
+
+<div class="wrap">
+  <div class="page-head">
+    <span class="eyebrow">Legal</span>
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: September 2026</p>
+  </div>
+
+  <div class="prose">
+
+    <div class="highlight-box">
+      <p>Short version: <strong>TextPolisher processes everything on your Mac. Your text never leaves your device. We collect no personal data from the app.</strong></p>
+    </div>
+
+    <h2>1. The App</h2>
+    <p>TextPolisher is a free, open-source macOS menu-bar application that rewrites selected text using Apple Intelligence or a locally running Ollama model. All text processing happens on your computer.</p>
+    <ul>
+      <li><strong>No text is transmitted to any server.</strong> Your drafts, rewrites, and clipboard contents never leave your device.</li>
+      <li><strong>No account or license is required.</strong> The app has no registration, payment, subscription, or activation system.</li>
+      <li><strong>No telemetry or analytics from the app.</strong> The app does not phone home, does not track usage, and does not send crash reports to us.</li>
+    </ul>
+
+    <h2>2. Who We Are</h2>
+    <p>Daniel Leonti operates the TextPolisher website. You can reach us using the contact details below.</p>
+
+    <h2>3. The Website</h2>
+    <p>When you visit <strong>textpolisher.app</strong>, standard web server access logs may be collected by our hosting provider (Cloudflare). These logs may include your IP address, browser type, and pages visited. We use this data solely for security and performance monitoring.</p>
+    <p>With your consent, the website uses <strong>Microsoft Clarity</strong>, a session recording and heatmap tool. Clarity only loads after you accept optional analytics cookies in our consent banner; if you decline, it is never loaded. When enabled, Clarity may collect anonymized information about how you interact with the site (mouse movements, clicks, scroll depth) to help us improve the website experience. Clarity does not identify you personally. You can learn more at <a href="https://clarity.microsoft.com/terms" target="_blank" rel="noopener">clarity.microsoft.com/terms</a>.</p>
+
+    <h2>4. Update Checks</h2>
+    <p>When you click "Check for Updates…" in the app, it makes a single HTTPS request to <strong>dl.textpolisher.app/appcast.json</strong> to fetch the latest version number. This request may include standard HTTP metadata (IP address, user-agent). No personal data beyond what is inherent to an HTTP request is sent, and no information is stored on our end beyond standard server access logs.</p>
+
+    <h2>5. Third-Party Services</h2>
+    <ul>
+      <li><strong>Cloudflare</strong> — website hosting and download delivery.</li>
+      <li><strong>Microsoft Clarity</strong> — optional website analytics, loaded only with consent.</li>
+      <li><strong>GitHub</strong> — hosts the public source repository when you follow a source link.</li>
+    </ul>
+    <p>The app's text processing relies on <strong>Apple Intelligence</strong> or an optional local <strong>Ollama</strong> installation. TextPolisher does not send your text to either the website or the app's operator. See <a href="https://www.apple.com/legal/privacy/" target="_blank" rel="noopener">Apple's Privacy Policy</a> for information about Apple Intelligence.</p>
+
+    <h2>6. Your Privacy Rights</h2>
+    <p>TextPolisher has no user accounts and does not retain app usage or text-processing data. For questions about website data, or to exercise applicable access, correction, deletion, restriction, objection, or portability rights, contact us. We will respond within 30 days.</p>
+    <p>You also have the right to lodge a complaint with your local data protection authority.</p>
+
+    <h2>7. Data Retention</h2>
+    <p>TextPolisher does not maintain an account database. Cloudflare and, when consented to, Microsoft Clarity may retain limited website logs according to their own retention policies. We may retain records required by law for transactions completed before TextPolisher became free.</p>
+
+    <h2>8. Children's Privacy</h2>
+    <p>TextPolisher is not directed at children under 13. We do not knowingly collect any personal information from children.</p>
+
+    <h2>9. Changes to This Policy</h2>
+    <p>If we make material changes to this policy, we will update the "Last updated" date above.</p>
+
+    <h2>10. Contact</h2>
+    <p>Questions about this privacy policy, or want to exercise a data right? Contact us at <a href="mailto:leonti174@gmail.com">leonti174@gmail.com</a> or call <a href="tel:+972546220656">+972 546220656</a>.</p>
+
+  </div>
+
+  <footer>
+    <a class="brand" href="/"><img src="icon-180.png" alt="" style="width:24px;height:24px;border-radius:6px;" /> TextPolisher</a>
+    <div class="f-links">
+      <a href="/">Home</a>
+      <a href="/terms">Terms</a>
+      <a href="/privacy">Privacy</a>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>
