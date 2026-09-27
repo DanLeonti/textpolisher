@@ -95,6 +95,21 @@
   .hero-actions { display: flex; align-items: center; gap: 12px; margin-top: 32px; flex-wrap: wrap; }
   .hero-meta { margin-top: 18px; font-size: 0.85rem; color: var(--muted); }
 
+  /* Powered-by badge (Lathe) */
+  .powered {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 16px; padding: 6px 12px 6px 10px;
+    border: 1px solid var(--line); border-radius: 999px;
+    font-size: 0.8rem; color: var(--muted); text-decoration: none;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .powered b { font-weight: 600; color: var(--ink); }
+  .powered:hover { color: var(--ink); border-color: var(--ink); }
+  .powered .lathe-mark { color: var(--ink); flex: none; }
+  @keyframes lathe-blink { 50% { opacity: 0; } }
+  .powered .lathe-cur { animation: lathe-blink 1.1s steps(1) infinite; }
+  @media (prefers-reduced-motion: reduce) { .powered .lathe-cur { animation: none; } }
+
   /* Hero demo wrapper (chat + hotkey overlay live inside) */
   .demo { position: relative; }
 
@@ -328,6 +343,10 @@
           <a class="btn-ghost" href="https://github.com/DanLeonti/textpolisher">View source on GitHub</a>
         </div>
         <p class="hero-meta">Free forever · Open source · macOS 26 (Tahoe)+ · Apple Silicon</p>
+        <a class="powered" href="https://lathe.live" target="_blank" rel="noopener" title="Hosted on Lathe">
+          <svg class="lathe-mark" viewBox="0 0 32 44" width="13" height="18" aria-hidden="true"><g transform="translate(-17 -10)"><path d="M20 13v34a4 4 0 0 0 4 4h6" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><rect class="lathe-cur" x="34" y="35" width="15" height="16" rx="2" fill="currentColor"/></g></svg>
+          <span>Powered by <b>Lathe.live</b></span>
+        </a>
       </div>
 
       <div class="demo">
