@@ -1,0 +1,7 @@
+// textpolisher.app is an assets-only Cloudflare Worker (custom domains textpolisher.app and www).
+// Deploy the site with: npx wrangler@4 deploy
+{
+  "name": "textpolisher",
+  "compatibility_date": "2026-09-03",
+  "assets": { "directory": "./site" }
+}
